@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MindMate AI - 12 Week Scrum Board</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0f0f23;
+            --bg-secondary: #1a1a3e;
+            --bg-card: #252545;
+            --text-primary: #e8e8f0;
+            --text-secondary: #a0a0c0;
+            --accent-teal: #00d9ff;
+            --accent-purple: #b794f6;
+            --accent-pink: #ff6b9d;
+            --accent-yellow: #ffd93d;
+            --accent-green: #6bcb77;
+            
+            --priority-high: #ff6b6b;
+            --priority-medium: #ffd93d;
+            --priority-low: #6bcb77;
+            
+            --status-todo: #4a5568;
+            --status-progress: #4299e1;
+            --status-review: #ed8936;
+            --status-done: #48bb78;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(0, 217, 255, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(183, 148, 246, 0.03) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .header {
+            padding: 2rem 2rem 1rem;
+            border-bottom: 1px solid rgba(232, 232, 240, 0.1);
+            position: relative;
+            z-index: 10;
+            background: rgba(15, 15, 35, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        .header-content {
+            max-width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent-teal), var(--accent-purple));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-teal), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-meta {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-family: 'Space Mono', monospace;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .meta-value {
+            color: var(--accent-teal);
+            font-weight: 700;
+        }
+
+        .filters {
+            padding: 1rem 2rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 10;
+            background: rgba(26, 26, 62, 0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .filter-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .filter-btn {
+            padding: 0.4rem 0.8rem;
+            border: 1px solid rgba(232, 232, 240, 0.2);
+            background: rgba(37, 37, 69, 0.6);
+            color: var(--text-secondary);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.8rem;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .filter-btn:hover {
+            background: rgba(37, 37, 69, 0.9);
+            border-color: var(--accent-teal);
+            color: var(--text-primary);
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(135deg, var(--accent-teal), var(--accent-purple));
+            border-color: transparent;
+            color: var(--bg-primary);
+            font-weight: 500;
+        }
+
+        .board-container {
+            padding: 2rem;
+            overflow-x: auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .board {
+            display: flex;
+            gap: 1.5rem;
+            min-width: max-content;
+            padding-bottom: 2rem;
+        }
+
+        .column {
+            width: 340px;
+            background: rgba(37, 37, 69, 0.4);
+            border-radius: 12px;
+            padding: 1rem;
+            border: 1px solid rgba(232, 232, 240, 0.1);
+            flex-shrink: 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .column-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid rgba(232, 232, 240, 0.1);
+        }
+
+        .column-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .column-count {
+            background: rgba(232, 232, 240, 0.1);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .column-sprint-1 .column-title { color: var(--accent-yellow); }
+        .column-sprint-2 .column-title { color: var(--accent-pink); }
+        .column-sprint-3 .column-title { color: var(--accent-teal); }
+        .column-sprint-4 .column-title { color: var(--accent-purple); }
+        .column-backlog .column-title { color: var(--text-secondary); }
+
+        .cards {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            min-height: 200px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: 10px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(232, 232, 240, 0.1);
+            position: relative;
+            animation: cardSlideIn 0.4s ease-out backwards;
+        }
+
+        @keyframes cardSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3),
+                        0 0 0 1px rgba(0, 217, 255, 0.3);
+        }
+
+        .card-priority {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            border-radius: 10px 0 0 10px;
+        }
+
+        .card-priority.high { background: var(--priority-high); }
+        .card-priority.medium { background: var(--priority-medium); }
+        .card-priority.low { background: var(--priority-low); }
+
+        .card-epic {
+            display: inline-block;
+            font-size: 0.7rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .epic-1 { background: rgba(255, 107, 157, 0.2); color: var(--accent-pink); }
+        .epic-2 { background: rgba(0, 217, 255, 0.2); color: var(--accent-teal); }
+        .epic-3 { background: rgba(255, 217, 61, 0.2); color: var(--accent-yellow); }
+        .epic-4 { background: rgba(107, 203, 119, 0.2); color: var(--accent-green); }
+        .epic-5 { background: rgba(183, 148, 246, 0.2); color: var(--accent-purple); }
+
+        .card-title {
+            font-size: 0.95rem;
+            font-weight: 500;
+            line-height: 1.4;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+        }
+
+        .card-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid rgba(232, 232, 240, 0.1);
+        }
+
+        .card-points {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-family: 'Space Mono', monospace;
+        }
+
+        .points-badge {
+            background: rgba(0, 217, 255, 0.15);
+            color: var(--accent-teal);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-weight: 700;
+        }
+
+        .card-assignee {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-teal), var(--accent-purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+            border: 2px solid var(--bg-card);
+        }
+
+        .card-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            margin-top: 0.5rem;
+        }
+
+        .status-done { background: rgba(72, 187, 120, 0.2); color: var(--status-done); }
+        .status-in-progress { background: rgba(66, 153, 225, 0.2); color: var(--status-progress); }
+        .status-planned { background: rgba(237, 137, 54, 0.2); color: var(--status-review); }
+
+        .legend {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: rgba(37, 37, 69, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid rgba(232, 232, 240, 0.1);
+            max-width: 300px;
+            z-index: 100;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .legend-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .legend-section {
+            margin-bottom: 1rem;
+        }
+
+        .legend-subtitle {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .legend {
+                display: none;
+            }
+        }
+
+        .sprint-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-card {
+            background: rgba(37, 37, 69, 0.6);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid rgba(232, 232, 240, 0.1);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-family: 'Space Mono', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">M</div>
+                <h1>MindMate AI - 12 Week Scrum Board</h1>
+            </div>
+            <div class="header-meta">
+                <div class="meta-item">
+                    <span>Total Stories:</span>
+                    <span class="meta-value" id="totalStories">55</span>
+                </div>
+                <div class="meta-item">
+                    <span>Story Points:</span>
+                    <span class="meta-value" id="totalPoints">387</span>
+                </div>
+                <div class="meta-item">
+                    <span>Duration:</span>
+                    <span class="meta-value">12 weeks</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="filters">
+        <div class="filter-group">
+            <span class="filter-label">Epic:</span>
+            <button class="filter-btn active" onclick="filterEpic('all')">All</button>
+            <button class="filter-btn" onclick="filterEpic('1')">Core Check-in</button>
+            <button class="filter-btn" onclick="filterEpic('2')">Auth & Onboarding</button>
+            <button class="filter-btn" onclick="filterEpic('3')">AI Insights</button>
+            <button class="filter-btn" onclick="filterEpic('4')">Journaling</button>
+            <button class="filter-btn" onclick="filterEpic('5')">Coping Tools</button>
+        </div>
+        <div class="filter-group">
+            <span class="filter-label">Priority:</span>
+            <button class="filter-btn active" onclick="filterPriority('all')">All</button>
+            <button class="filter-btn" onclick="filterPriority('high')">High</button>
+            <button class="filter-btn" onclick="filterPriority('medium')">Medium</button>
+            <button class="filter-btn" onclick="filterPriority('low')">Low</button>
+        </div>
+    </div>
+
+    <div class="board-container">
+        <div class="board" id="board">
+            <!-- Sprint 1 -->
+            <div class="column column-sprint-1" data-sprint="1">
+                <div class="column-header">
+                    <div class="column-title">
+                        ⚡ Sprint 1 (Week 1-3)
+                    </div>
+                    <div class="column-count" id="count-sprint-1">0</div>
+                </div>
+                <div class="cards" id="cards-sprint-1"></div>
+            </div>
+
+            <!-- Sprint 2 -->
+            <div class="column column-sprint-2" data-sprint="2">
+                <div class="column-header">
+                    <div class="column-title">
+                        🚀 Sprint 2 (Week 4-6)
+                    </div>
+                    <div class="column-count" id="count-sprint-2">0</div>
+                </div>
+                <div class="cards" id="cards-sprint-2"></div>
+            </div>
+
+            <!-- Sprint 3 -->
+            <div class="column column-sprint-3" data-sprint="3">
+                <div class="column-header">
+                    <div class="column-title">
+                        🎯 Sprint 3 (Week 7-9)
+                    </div>
+                    <div class="column-count" id="count-sprint-3">0</div>
+                </div>
+                <div class="cards" id="cards-sprint-3"></div>
+            </div>
+
+            <!-- Sprint 4 -->
+            <div class="column column-sprint-4" data-sprint="4">
+                <div class="column-header">
+                    <div class="column-title">
+                        🏁 Sprint 4 (Week 10-12)
+                    </div>
+                    <div class="column-count" id="count-sprint-4">0</div>
+                </div>
+                <div class="cards" id="cards-sprint-4"></div>
+            </div>
+
+            <!-- Backlog -->
+            <div class="column column-backlog" data-sprint="backlog">
+                <div class="column-header">
+                    <div class="column-title">
+                        📋 Backlog
+                    </div>
+                    <div class="column-count" id="count-backlog">0</div>
+                </div>
+                <div class="cards" id="cards-backlog"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="legend">
+        <div class="legend-title">Legend</div>
+        
+        <div class="legend-section">
+            <div class="legend-subtitle">Priority</div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: var(--priority-high);"></div>
+                <span>High Priority</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: var(--priority-medium);"></div>
+                <span>Medium Priority</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: var(--priority-low);"></div>
+                <span>Low Priority</span>
+            </div>
+        </div>
+
+        <div class="legend-section">
+            <div class="legend-subtitle">Epics</div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: rgba(255, 107, 157, 0.6);"></div>
+                <span>Core Check-in</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: rgba(0, 217, 255, 0.6);"></div>
+                <span>Auth & Onboarding</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: rgba(255, 217, 61, 0.6);"></div>
+                <span>AI Insights</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: rgba(107, 203, 119, 0.6);"></div>
+                <span>Journaling</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: rgba(183, 148, 246, 0.6);"></div>
+                <span>Coping Tools</span>
+            </div>
+        </div>
+
+        <div class="legend-section">
+            <div class="legend-subtitle">Story Points</div>
+            <div class="legend-item">
+                <span style="font-size: 0.75rem;">1-3: Small (< 1 day)<br>
+                5: Medium (1-2 days)<br>
+                8: Large (3-4 days)<br>
+                13: XL (~1 week)</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const cards = [
+            // Sprint 1 - Foundation
+            { epic: 1, title: "Complete 20-second emotional check-in with minimal friction", priority: "high", points: 8, assignee: "D1", sprint: 1, status: "in-progress" },
+            { epic: 1, title: "Build emotion selection UI with intensity slider", priority: "high", points: 5, assignee: "D1", sprint: 1, status: "in-progress" },
+            { epic: 1, title: "Implement local storage for check-in data with encryption", priority: "high", points: 5, assignee: "D2", sprint: 1, status: "done" },
+            { epic: 2, title: "Secure authentication respecting user privacy", priority: "high", points: 13, assignee: "D2", sprint: 1, status: "in-progress" },
+            { epic: 2, title: "Implement biometric authentication (Face ID/Touch ID)", priority: "high", points: 8, assignee: "D2", sprint: 1, status: "in-progress" },
+            { epic: 2, title: "Build onboarding flow explaining value and consent", priority: "high", points: 5, assignee: "D3", sprint: 1, status: "done" },
+            { epic: 5, title: "Immediate grounding exercises for crisis moments", priority: "high", points: 13, assignee: "D2", sprint: 1, status: "in-progress" },
+            { epic: 5, title: "Create library of 2-5 minute grounding exercises", priority: "high", points: 8, assignee: "D2", sprint: 1, status: "in-progress" },
+            { epic: 5, title: "Build breathing exercise module with visual guidance", priority: "high", points: 5, assignee: "D1", sprint: 1, status: "done" },
+            { epic: 0, title: "Set up CI/CD pipeline with automated testing", priority: "high", points: 8, assignee: "Ops", sprint: 1, status: "done" },
+            { epic: 0, title: "Configure cloud backend with HIPAA-compliant database", priority: "high", points: 13, assignee: "Ops", sprint: 1, status: "in-progress" },
+            { epic: 0, title: "Implement API gateway and authentication middleware", priority: "high", points: 8, assignee: "D2", sprint: 1, status: "in-progress" },
+            { epic: 0, title: "Create design system and component library", priority: "high", points: 5, assignee: "Des", sprint: 1, status: "done" },
+            { epic: 0, title: "Design emotion wheel UI for check-in selection", priority: "high", points: 3, assignee: "Des", sprint: 1, status: "done" },
+            
+            // Sprint 2 - Core Features
+            { epic: 1, title: "Create mood tracking history view with calendar interface", priority: "medium", points: 8, assignee: "D1", sprint: 2, status: "planned" },
+            { epic: 1, title: "Design and implement data visualization for emotional patterns", priority: "medium", points: 5, assignee: "D3", sprint: 2, status: "planned" },
+            { epic: 2, title: "Create user profile setup with preferences collection", priority: "medium", points: 5, assignee: "D3", sprint: 2, status: "planned" },
+            { epic: 3, title: "Help understand emotional patterns with AI", priority: "high", points: 13, assignee: "D3", sprint: 2, status: "planned" },
+            { epic: 3, title: "Integrate NLP model for sentiment analysis of journal entries", priority: "high", points: 13, assignee: "D3", sprint: 2, status: "planned" },
+            { epic: 4, title: "Journal thoughts when feeling overwhelmed", priority: "high", points: 8, assignee: "D1", sprint: 2, status: "planned" },
+            { epic: 4, title: "Build rich text journaling interface with voice-to-text", priority: "high", points: 8, assignee: "D1", sprint: 2, status: "planned" },
+            { epic: 4, title: "Implement offline journaling with background sync", priority: "high", points: 8, assignee: "D2", sprint: 2, status: "planned" },
+            { epic: 5, title: "Implement guided meditation audio player with timers", priority: "medium", points: 8, assignee: "D3", sprint: 2, status: "planned" },
+            { epic: 3, title: "Set up ML pipeline for sentiment analysis", priority: "high", points: 8, assignee: "ML", sprint: 2, status: "planned" },
+            { epic: 0, title: "Write unit tests for core check-in functionality", priority: "medium", points: 5, assignee: "QA", sprint: 2, status: "planned" },
+            { epic: 0, title: "Create automated E2E tests for authentication flow", priority: "medium", points: 5, assignee: "QA", sprint: 2, status: "planned" },
+            { epic: 1, title: "Add push notification system for gentle reminders", priority: "medium", points: 5, assignee: "D2", sprint: 2, status: "planned" },
+
+            // Sprint 3 - Intelligence & Security
+            { epic: 1, title: "Add ability to tag check-ins with context", priority: "low", points: 3, assignee: "D2", sprint: 3, status: "backlog" },
+            { epic: 2, title: "Implement privacy dashboard showing data usage", priority: "medium", points: 8, assignee: "D2", sprint: 3, status: "backlog" },
+            { epic: 2, title: "Add account recovery flow with secure backup", priority: "low", points: 5, assignee: "D2", sprint: 3, status: "backlog" },
+            { epic: 3, title: "Build pattern detection algorithm for triggers", priority: "high", points: 8, assignee: "D3", sprint: 3, status: "backlog" },
+            { epic: 3, title: "Create personalized insight generation system", priority: "medium", points: 8, assignee: "D3", sprint: 3, status: "backlog" },
+            { epic: 4, title: "Create quick reflection templates for common scenarios", priority: "medium", points: 5, assignee: "D1", sprint: 3, status: "backlog" },
+            { epic: 5, title: "Design progressive muscle relaxation guide", priority: "medium", points: 5, assignee: "D2", sprint: 3, status: "backlog" },
+            { epic: 5, title: "Add 5-4-3-2-1 sensory grounding technique", priority: "low", points: 3, assignee: "D1", sprint: 3, status: "backlog" },
+            { epic: 2, title: "Implement data export functionality (GDPR)", priority: "high", points: 8, assignee: "D2", sprint: 3, status: "backlog" },
+            { epic: 0, title: "Set up analytics and monitoring dashboard", priority: "medium", points: 5, assignee: "Ops", sprint: 3, status: "backlog" },
+            { epic: 0, title: "Conduct security audit and penetration testing", priority: "high", points: 13, assignee: "Sec", sprint: 3, status: "backlog" },
+            { epic: 3, title: "Optimize AI inference costs and response time", priority: "medium", points: 8, assignee: "ML", sprint: 3, status: "backlog" },
+
+            // Sprint 4 - Launch Prep
+            { epic: 3, title: "Implement weekly emotional summary with recommendations", priority: "medium", points: 5, assignee: "D1", sprint: 4, status: "backlog" },
+            { epic: 3, title: "Add AI-powered journaling prompts based on state", priority: "low", points: 5, assignee: "D3", sprint: 4, status: "backlog" },
+            { epic: 4, title: "Add ability to attach photos/images to entries", priority: "low", points: 3, assignee: "D1", sprint: 4, status: "backlog" },
+            { epic: 4, title: "Build search and filter for past journal entries", priority: "low", points: 5, assignee: "D2", sprint: 4, status: "backlog" },
+            { epic: 5, title: "Create personalized exercise recommendations", priority: "medium", points: 8, assignee: "D3", sprint: 4, status: "backlog" },
+            { epic: 0, title: "Build paywall and subscription management", priority: "high", points: 13, assignee: "D1", sprint: 4, status: "backlog" },
+            { epic: 0, title: "Integrate Stripe/RevenueCat for payments", priority: "high", points: 8, assignee: "D1", sprint: 4, status: "backlog" },
+            { epic: 0, title: "Implement user behavior tracking and retention metrics", priority: "medium", points: 5, assignee: "Data", sprint: 4, status: "backlog" },
+            { epic: 4, title: "Add export journal as PDF functionality", priority: "low", points: 5, assignee: "D1", sprint: 4, status: "backlog" },
+            { epic: 0, title: "Conduct beta testing with 50-100 target users", priority: "high", points: 13, assignee: "PM", sprint: 4, status: "backlog" },
+            { epic: 0, title: "Create App Store and Play Store listings", priority: "medium", points: 5, assignee: "PM", sprint: 4, status: "backlog" },
+            { epic: 0, title: "Prepare customer support documentation and FAQs", priority: "medium", points: 5, assignee: "PM", sprint: 4, status: "backlog" },
+        ];
+
+        const epicNames = {
+            0: "Infrastructure",
+            1: "Core Check-in",
+            2: "Auth & Onboarding",
+            3: "AI Insights",
+            4: "Journaling",
+            5: "Coping Tools"
+        };
+
+        let currentEpicFilter = 'all';
+        let currentPriorityFilter = 'all';
+
+        function createCard(card, index) {
+            const delay = index * 0.05;
+            return `
+                <div class="card" data-epic="${card.epic}" data-priority="${card.priority}" style="animation-delay: ${delay}s">
+                    <div class="card-priority ${card.priority}"></div>
+                    ${card.epic > 0 ? `<div class="card-epic epic-${card.epic}">${epicNames[card.epic]}</div>` : ''}
+                    <div class="card-title">${card.title}</div>
+                    <div class="card-meta">
+                        <div class="card-points">
+                            <span class="points-badge">${card.points}</span>
+                            <span>pts</span>
+                        </div>
+                        <div class="card-assignee">${card.assignee}</div>
+                    </div>
+                    ${card.status !== 'backlog' ? `<div class="card-status status-${card.status.replace(' ', '-')}">${card.status.replace('-', ' ')}</div>` : ''}
+                </div>
+            `;
+        }
+
+        function renderCards() {
+            const filtered = cards.filter(card => {
+                const epicMatch = currentEpicFilter === 'all' || card.epic.toString() === currentEpicFilter;
+                const priorityMatch = currentPriorityFilter === 'all' || card.priority === currentPriorityFilter;
+                return epicMatch && priorityMatch;
+            });
+
+            ['1', '2', '3', '4'].forEach(sprint => {
+                const container = document.getElementById(`cards-sprint-${sprint}`);
+                const sprintCards = filtered.filter(c => c.sprint.toString() === sprint);
+                container.innerHTML = sprintCards.map((card, index) => createCard(card, index)).join('');
+                document.getElementById(`count-sprint-${sprint}`).textContent = sprintCards.length;
+            });
+
+            const totalPoints = filtered.reduce((sum, card) => sum + card.points, 0);
+            document.getElementById('totalStories').textContent = filtered.length;
+            document.getElementById('totalPoints').textContent = totalPoints;
+        }
+
+        function filterEpic(epic) {
+            currentEpicFilter = epic;
+            document.querySelectorAll('.filter-group:first-child .filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            renderCards();
+        }
+
+        function filterPriority(priority) {
+            currentPriorityFilter = priority;
+            document.querySelectorAll('.filter-group:last-child .filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            renderCards();
+        }
+
+        // Initial render
+        renderCards();
+    </script>
+</body>
+</html>
